@@ -1,0 +1,13 @@
+_recursive_: False
+_target_: src.datamodules.jigsaw.JigsawDataModule
+
+defaults:
+  - /collate_fn: padding
+  - /tokenizer: autotokenizer
+
+
+pin_memory: False
+path_to_data: ${jigsaw}/train_subset.csv
+batch_size: 1
+num_workers: 0
+

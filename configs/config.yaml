@@ -1,0 +1,76 @@
+# @package _global_
+
+# specify here default training configuration
+defaults:
+
+  # Training Setup
+  - trainer: default.yaml
+
+  # Module
+  - module: sequence_classification
+  
+  # Define (Train/Val) Datamodule
+  - datamodule: jigsaw.yaml
+
+  #- evaluation@evaluation.mlm: mlm.yaml
+  #- evaluation@evaluation.retrieval_cos_mean: retrieval_cos_mean.yaml
+  #- evaluation@evaluation.retrieval_cos_cls: retrieval_cos_cls.yaml
+  #- evaluation@evaluation.retrieval_bertscore: retrieval_bertscore.yaml
+
+  # Utils
+  - callbacks: null # set this to null if you don't want to use callbacks
+  - logger: wandb # set logger here or use command line (e.g. `python run.py logger=wandb`)
+  #- experiment: monolingual
+  - hydra: default.yaml
+
+  # enable color logging
+  - override hydra/hydra_logging: colorlog
+  - override hydra/job_logging: colorlog
+
+
+# If you want to do one val epoch before training
+val_before_training: True
+
+# If you want to conntinue training, then give checkpoint path
+# Otherwise, delete ckpt_path
+# ckpt_path: "/work-ceph/mbui/clkd/logs/runs/2022-03-05/23-25-04/checkpoints/last.ckpt"
+
+# Random Seed
+seed: 42
+
+# path to original working directory
+# hydra hijacks working directory by changing it to the current log directory,
+# so it's useful to have this path as a special variable
+# learn more here: https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
+work_dir: ${hydra:runtime.cwd}
+
+# path to folder with data
+data_dir: /pfs/data5/home/ma/ma_ma/ma_mbui/clkd/data
+
+# Path to CC100 Folder for MLM pretraining
+jigsaw: ${data_dir}/jigsaw
+
+# Path to parallel data Folder
+#parallel_data: ${data_dir}/parallel_data
+
+# Path to JW300 Folder for MLM Validation
+#jw300: ${data_dir}/jw300
+
+# Path to Tatoeba Folder for Retrieval Validation
+#tatoeba: ${data_dir}/tatoeba
+
+# use `python run.py debug=true` for easy debugging!
+# this will run 1 train, val and test loop with only 1 batch
+# equivalent to running `python run.py trainer.fast_dev_run=true`
+# (this is placed here just for easier access from command line)
+debug: False
+
+# pretty print config at the start of the run using Rich library
+print_config: True
+
+# disable python warnings if they annoy you
+ignore_warnings: True
+
+# check performance on test set, using the best model achieved during training
+# lightning chooses best model based on metric specified in checkpoint callback
+test_on_downstream_task: True

@@ -1,0 +1,28 @@
+prepare_cfg: null
+
+# Which keys/attributes are supposed to be collected from `outputs` and `batch`
+step_outputs:
+  outputs:
+    - "preds" # can be a str
+    - "logits"
+  batch: # or a list[str]
+    - labels_binary
+
+# either metrics or val_metrics and test_metrics
+# where the latter
+# metrics_cfg should be copied for each dataset by default unless _datasets_ is specified
+metrics_cfg:
+  # name of the metric used eg for logging
+  acc:
+    # instructions to instantiate metric, preferrably torchmetrics.Metric
+    metric:
+      _partial_: true
+      _target_: torchmetrics.functional.accuracy
+      task: "multiclass"
+      num_classes: 2
+      average: "macro"
+    # either "eval_step" or "epoch_end"
+    compute_on: "epoch_end"
+    kwargs: 
+      preds: "outputs:preds"
+      target: "outputs:labels_binary"

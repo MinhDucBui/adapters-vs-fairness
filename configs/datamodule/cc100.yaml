@@ -1,0 +1,12 @@
+_recursive_: False
+_target_: src.datamodules.cc100.CC100DataModule
+
+defaults:
+  - /collate_fn: mlm
+  - /tokenizer: autotokenizer
+
+pin_memory: False
+data_dir: ${cc}
+batch_size: 4
+num_workers: 0
+

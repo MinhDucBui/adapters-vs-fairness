@@ -1,0 +1,13 @@
+# # hydra by default would instantiate optimizer and scheduler when passed to HFModel
+# # recursive: false -- pass config (possibly instantiated later) rather than instantiated class
+
+_recursive_: false
+_target_: src.module.base_module.BaseModule
+
+defaults:
+# interleaved with setup so instantiated later (recursive false)
+- optimizer: adamw
+- scheduler: constant_schedule
+- tokenizer: autotokenizer
+
+model: ???
