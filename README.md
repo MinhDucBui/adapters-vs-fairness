@@ -1,6 +1,6 @@
 <div align="center">
 
-# Cross-Lingual Knowledge Distillation
+# The Trade-off between Fairness and Efficiency in Adapter Modules
 
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
 <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
@@ -10,14 +10,7 @@
 </div>
 
 ## 📌&nbsp;&nbsp;Introduction
-This project enables to distill multilingual transformers into language-specific students. Features contain:
-
-- Adjust any distillation loss 
-- Any number of students and languages per student
-- Change the teacher and student architecture 
-- Choose between monolingual, bilingual, or multilingual distillation setup
-- Component Sharing across students
-- Initialization of students from teacher layers
+Adapters are a parameter-efficient way to finetune pretrained models for specific target tasks. However, while they reduce training time, little is known about possible unwanted side effects of finetuning only the added layers as opposed to adapting an entire model. We focus specifically on the potential implications on fairness: we finetune 1) entire pretrained models and 2) adapters within the same models only on toxic text classification and evaluate all  models using two datasets -- 1) Jigsaw and 2) HateXplain.
 
 ## 🚀&nbsp;&nbsp;Quickstart
 
