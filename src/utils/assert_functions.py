@@ -1,5 +1,4 @@
 from src.utils.utils import convert_cfg_tuple, initialize_evaluation_cfg
-from src.utils.mappings import create_model_mapping, create_validation_mapping
 import copy
 
 
@@ -28,21 +27,6 @@ def assert_functions(cfg):
 def assert_datamodule_cfg(data_cfg):
     for key, value in data_cfg.items():
         assert "_target_" in value.keys(), "No _target_ specified in datamodule {}".format(key)
-
-
-def assert_model_checkpoint_cfg(students_cfg, eval_cfg, model_checkpoint_cfg):
-    monitor_name = model_checkpoint_cfg["monitor"]
-    model_mapping = create_model_mapping(students_cfg)
-    logger_names = create_validation_mapping(eval_cfg, model_mapping, stage="val")
-    correct_logging_name = False
-    all_log_names = []
-    for log_name in logger_names:
-        log_name = log_name["logger_name"] + "/" + log_name["metric_name"]
-        if log_name == monitor_name:
-            correct_logging_name = True
-        all_log_names.append(log_name)
-    assert correct_logging_name, \
-        "ModelCheckpoint(monitor='{}') not found in the returned metrics: {}.".format(monitor_name, all_log_names)
 
 
 def assert_eval_cfg(students_cfg, eval_cfg):

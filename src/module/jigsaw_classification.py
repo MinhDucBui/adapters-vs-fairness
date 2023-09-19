@@ -4,7 +4,6 @@ from src.utils import utils
 import hydra
 import torch.nn as nn
 import torch
-from src.models.modules.pooling import mean
 from typing import Any, Callable, NamedTuple, Optional, Union
 import torch.nn.functional as F
 

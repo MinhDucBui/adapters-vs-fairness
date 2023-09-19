@@ -8,9 +8,6 @@ from src.module.mixin.eval import EvalMixin
 import torch
 from omegaconf import DictConfig
 from src.utils import utils
-from src.models.modules.utils import change_embedding_layer
-from src.utils.utils import keep_only_model_forward_arguments, get_model_language, \
-    append_torch_in_dict, get_subset_cleaned_batch
 from src.utils.assert_functions import assert_functions
 from src.utils.debug import debug_embedding_updating
 from torch.nn import functional as F

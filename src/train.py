@@ -1,5 +1,4 @@
 from typing import List, Optional
-from src.datamodules.mixed_data import MixedDataModule
 import hydra
 from omegaconf import DictConfig
 from pytorch_lightning import (
