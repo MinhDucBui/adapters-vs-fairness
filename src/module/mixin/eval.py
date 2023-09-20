@@ -359,7 +359,6 @@ class EvalMixin:
             dataset_name: name of dataset as denoted in datamodule config
         """
         flattened_step_outputs = utils.flatten_dict(step_outputs)
-        print( torch.sum(flattened_step_outputs["preds"]) )
         flattened_step_outputs = self.prepare_step_outputs(
             stage, flattened_step_outputs, dataset_name
         )

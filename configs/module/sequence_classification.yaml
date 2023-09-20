@@ -1,6 +1,6 @@
 defaults:
   - basemodule
-  - /evaluation: binary_classification
+  - /evaluation: jigsaw_evaluation
   
 _target_: src.module.jigsaw_classification.JigsawClassification
 model:

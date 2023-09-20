@@ -65,8 +65,9 @@ class JigsawClassification(BaseModule):
         return {"loss": loss}
         
     def get_preds(self, outputs: dict, *args, **kwargs) -> dict:
-        prob = torch.sigmoid(outputs["logits"])
-        outputs["preds"] = (prob >= 0.5).int().squeeze()
+        #rob = torch.sigmoid(outputs["logits"])
+        outputs["preds"] = (outputs["logits"] >= 0).int().squeeze()
+        #utputs["preds"] = (prob >= 0.5).int().squeeze()
         return outputs
     
     def prepare_step_outputs(
