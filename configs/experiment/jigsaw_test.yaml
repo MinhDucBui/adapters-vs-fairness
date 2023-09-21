@@ -8,9 +8,9 @@ module:
         
 datamodule:
     batch_size: 32
-    path_to_data: ${jigsaw}/train_subset.csv
+    path_to_data: ${jigsaw}/train_big.csv
     
 trainer:
     gpus: 1
-    val_check_interval: 100
+    val_check_interval: 1.0
 

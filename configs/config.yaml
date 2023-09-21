@@ -29,7 +29,7 @@ defaults:
 
 
 # If you want to do one val epoch before training
-val_before_training: True
+val_before_training: False
 
 # If you want to conntinue training, then give checkpoint path
 # Otherwise, delete ckpt_path

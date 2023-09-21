@@ -35,6 +35,7 @@ metrics_cfg:
     metric:
       #_partial_: true
       _target_: src.evaluation.equalized_odds.EqualizedOdds
+      attribute_names: ["religion", "race", "gender_and_sexual_orientation"]
     # either "eval_step" or "epoch_end"
     compute_on: "epoch_end"
     kwargs: 
