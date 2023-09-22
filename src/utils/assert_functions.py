@@ -1,4 +1,3 @@
-import copy
 
 
 def assert_functions(cfg):

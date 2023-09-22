@@ -1,11 +1,7 @@
-from types import MethodType
 from typing import Any, Callable, Optional, Union
-import copy
 import pytorch_lightning as pl
 from src.module.mixin.optimizer import OptimizerMixin
 from src.module.mixin.eval import EvalMixin
-#from src.module.mixin.initialize_models import InitializeModelsMixin
-import torch
 from omegaconf import DictConfig
 from src.utils import utils
 from torch.nn import functional as F

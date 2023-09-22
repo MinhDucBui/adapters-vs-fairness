@@ -1,7 +1,6 @@
 from torchmetrics import Metric
 from torchmetrics.functional.classification import accuracy
 import torch
-from tqdm import tqdm
 
 
 class EqualizedOdds(Metric):
