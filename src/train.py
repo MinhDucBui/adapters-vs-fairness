@@ -8,7 +8,7 @@ from pytorch_lightning import (
     seed_everything,
 )
 from src.callbacks.config_callback import config_callback
-from pytorch_lightning.loggers import LightningLoggerBase
+from lightning.pytorch.loggers import Logger
 from src.utils import utils
 
 log = utils.get_logger(__name__)
@@ -45,7 +45,7 @@ def train(config: DictConfig) -> Optional[float]:
     datamodule: LightningDataModule = hydra.utils.instantiate(config.datamodule)
 
     # Init lightning loggers
-    logger: List[LightningLoggerBase] = []
+    logger: List[Logger] = []
     if "logger" in config:
         for _, lg_conf in config.logger.items():
             if "_target_" in lg_conf:

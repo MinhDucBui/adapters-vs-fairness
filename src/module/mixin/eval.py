@@ -2,7 +2,7 @@ from typing import Any, Callable, NamedTuple, Optional, Union
 
 import hydra
 import torch
-from pytorch_lightning.utilities.parsing import AttributeDict
+from lightning.pytorch.utilities.parsing import AttributeDict
 from omegaconf import OmegaConf
 from omegaconf.base import DictKeyType
 from omegaconf.dictconfig import DictConfig

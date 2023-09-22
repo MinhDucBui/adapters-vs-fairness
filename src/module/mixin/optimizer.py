@@ -1,7 +1,7 @@
 from typing import Union
 
 import hydra
-from pytorch_lightning.utilities.parsing import AttributeDict
+from lightning.pytorch.utilities.parsing import AttributeDict
 from omegaconf.dictconfig import DictConfig
 
 from src.utils import utils

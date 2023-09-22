@@ -12,6 +12,7 @@ datamodule:
     test_data_path: ${jigsaw}/test_private_expanded.csv
     
 trainer:
+    accelerator: gpu
+    devices: 1
     val_check_interval: 0.25
-    max_epochs: 3
 
