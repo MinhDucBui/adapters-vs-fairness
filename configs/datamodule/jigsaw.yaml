@@ -7,7 +7,7 @@ defaults:
 
 
 pin_memory: False
-path_to_data: ${jigsaw}/train_subset.csv
-batch_size: 1
+train_data_path: ${jigsaw}/train_subset.csv
+test_data_path: ${jigsaw}/test_private_expanded.csv
+batch_size: 32
 num_workers: 0
-

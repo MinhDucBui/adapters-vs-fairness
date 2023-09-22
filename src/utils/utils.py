@@ -47,22 +47,6 @@ def flatten_dict(inputs: list[dict]) -> dict:
     return ret
 
 
-def initialize_evaluation_cfg(evaluation_cfg):
-    delete_tasks = []
-    for task_name, task in evaluation_cfg.items():
-        if task is None:
-            delete_tasks.append(task_name)
-            continue
-        for index, model_eval_with in enumerate(task["evaluate_with"]):
-            task["evaluate_with"][index] = convert_cfg_tuple(model_eval_with)
-
-    OmegaConf.set_struct(evaluation_cfg, True)
-    with open_dict(evaluation_cfg):
-        for delete_key in delete_tasks:
-            del evaluation_cfg[delete_key]
-    return evaluation_cfg
-
-
 def convert_cfg_tuple(cfg_tuple):
     if not ("(" == cfg_tuple[0] and ")" == cfg_tuple[-1]):
         sys.exit("Given cfg_tuple {} is not a tuple. Please make sure that its a tuple.".format(cfg_tuple))

@@ -288,31 +288,10 @@ class EvalMixin:
         metrics_cfg = self.evaluation.metrics_cfg
         if metrics_cfg is None:
             return
-        #metrics_cfg: DictConfig = self.evaluation.metrics_cfg.get(stage, metrics_cfg)
-        #print(metrics_cfg)
-        #if metrics_cfg is not None and "_datasets_" in metrics_cfg:
-        #    idx2dataset: dict[int, str] = getattr(self.trainer.datamodule, f"idx2dataset_{stage}")  # type: ignore - datamodule not appropriately embedded
-        #    # satisfy linter
-        #    assert idx2dataset is not None and dataloader_idx is not None
-            # dataloader_idx must come from list so datasets with varying length are appropriately iterated
-            # since Pytorch Lightning's CombinedLoader either reduces to shortest or extends to longest dataset otherwise
-        #    metrics_cfg = metrics_cfg["_datasets_"][idx2dataset[dataloader_idx]]
-        # `step_collection_dico` maps what to collect from `outputs` and `batch`
-        # eg {"outputs": "logits", "batch": ["input_ids", "attention_mask"]
 
-        #if dataloader_idx is not None:
-        #    idx2dataset = getattr(self.trainer.datamodule, f"idx2dataset_{stage}")
-        #    dataset = idx2dataset[dataloader_idx]
         step_collection_dico: Union[None, DictConfig] = OmegaConf.select(
              self.evaluation, f"step_outputs"
         )
-        #if (
-        #    dataset is not None
-        #    and step_collection_dico is not None
-        #    and "_datasets_" in step_collection_dico
-        #):
-        #    step_collection_dico = step_collection_dico._datasets_.get(dataset)
-        # if multiple datasets val or test dataloaders
         batch = self.prepare_batch(stage=stage, batch=batch)
         outputs = self.prepare_outputs(stage, self(batch), batch)
         if metrics_cfg is not None:
@@ -320,26 +299,8 @@ class EvalMixin:
                 if getattr(v, "compute_on", False) == "eval_step":
                     kwargs = self._prepare_metric_input(v.kwargs, outputs, batch)
                     v["metric"](**kwargs)
-
-        # lightning 2.0 now requires user to maintain step outputs themselves
-        # dataloader_idx == None is considered the equivalent of
-        # the first dataset in a multi dataset evaluation
-        # to harmonize handling on epoch end
         if dataloader_idx is None:
             dataloader_idx = 0
-        # TODO(fdschmidt93): better validation against datasets (eg include dataset name)
-        # try:
-        #     eval_outputs = self._eval_outputs[dataloader_idx]
-        # except IndexError as _:
-        #     if len(self._eval_outputs) == dataloader_idx:
-        #         eval_outputs = []
-        #         self._eval_outputs.append(eval_outputs)
-        #     else:
-        #         raise IndexError(
-        #             f"dataloader_idx {dataloader_idx} is not subsequent index in evaluation, check warranted!"
-        #         )
-        # except Exception:
-        #    raise Exception("This must not happen.")
         outputs = self._collect_step_output(outputs, batch, step_collection_dico)
         self._eval_outputs.append(outputs)
         
@@ -405,24 +366,6 @@ class EvalMixin:
             return
 
         step_outputs: list[list[dict]] = self._eval_outputs
-        #idx2dataset: Union[None, dict[int, str]] = getattr(self.trainer.datamodule, f"idx2dataset_{stage}")  # type: ignore - datamodule not appropriately embedded
-        # multiple datasets in `stage` dataloaders
-        #if idx2dataset is not None:
-        #    for idx, dataset_name in idx2dataset.items():
-        #        dataset_metrics = metrics_cfg._datasets_[dataset_name]
-        #        dataset_outputs = step_outputs[idx]
-        #        assert isinstance(dataset_outputs, list)  # avoid linting error
-        #        self.eval_epoch_end_dataset(
-        #            stage=stage,
-        #            step_outputs=dataset_outputs,
-        #            dataset_name=dataset_name,
-        #            metrics_cfg=dataset_metrics,
-        #        )
-        #else:
-
-        #assert (
-        #    len(step_outputs) == 1
-        #), "Something' off: `step_outputs` does not refer to single dataset!"
         self.eval_epoch_end_dataset(
             stage=stage,
             # TODO(fdschmidt93): resolve linting error
@@ -431,9 +374,6 @@ class EvalMixin:
         )
         # clean up cached dataset(s) outputs
         self._eval_outputs.clear()
-        #for name, param in self.model.named_parameters():
-        #    if param.requires_grad and name == "classifier.weight":
-        #        print(name, param.data)
 
 
     def validation_step(

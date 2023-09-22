@@ -130,7 +130,7 @@ class EqualizedOdds(Metric):
         metrics = {}
         # Iterate through the list and create key-value pairs
         for index, item in enumerate(eo_per_attribute):
-            metrics["eo_" + self.mapping[index]] = item
+            metrics["eo/" + self.mapping[index]] = item
             
         unpacked_dict = {}
         for key, value in group_metric_rates.items():

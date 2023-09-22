@@ -131,7 +131,7 @@ class BaseDataModule(LightningDataModule, ABC):
                            "collate_fn": self.train_collate_fn if self.train_collate_fn is not None else self.collate_fn,
                            # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
                            "shuffle": False}
-        train_dataloader =  DataLoader(dataset=self.data_train, **dataloader_args)
+        train_dataloader = DataLoader(dataset=self.data_train, **dataloader_args)
         return train_dataloader
 
     # TODO(fdschmidt93): support custom sampler
@@ -142,12 +142,16 @@ class BaseDataModule(LightningDataModule, ABC):
                        "collate_fn":  self.collate_fn,
                        # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
                        "shuffle": False}
-        val_dataloaders =  DataLoader(dataset=self.data_train, **dataloader_args)
-        return val_dataloaders
-        val_dataloaders = initialize_dataloader(self.data_val,
-                                                self.batch_size,
-                                                self.num_workers,
-                                                self.pin_memory,
-                                                self.collate_fn,
-                                                self.train_collate_fn)
-        return val_dataloaders
+        val_dataloader = DataLoader(dataset=self.data_val, **dataloader_args)
+        return val_dataloader
+
+    def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
+        dataloader_args = {"batch_size": self.batch_size,
+                       "num_workers": self.num_workers,
+                       "pin_memory": self.pin_memory,
+                       "collate_fn":  self.collate_fn,
+                       # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
+                       "shuffle": False}
+        test_dataloader = DataLoader(dataset=self.data_test, **dataloader_args)
+        return test_dataloader
+

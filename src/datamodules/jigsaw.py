@@ -15,7 +15,8 @@ SEED = 42
 class JigsawDataModule(BaseDataModule):
     def __init__(
             self,
-            path_to_data,
+            train_data_path,
+            test_data_path,
             testing=False,
             *args,
             **kwargs,
@@ -24,7 +25,8 @@ class JigsawDataModule(BaseDataModule):
         # TODO: Different Tokenizer for student/teacher
         super().__init__(*args, **kwargs)
 
-        self.path_to_data = path_to_data
+        self.train_data_path = train_data_path
+        self.test_data_path = test_data_path
         self.testing = testing
 
     @property
@@ -32,14 +34,16 @@ class JigsawDataModule(BaseDataModule):
         return 2
     
     def setup(self, stage: Optional[str] = None):
-        dataset = self.load_dataset()
+        log.info("Check Data...")
+        dataset = self.load_dataset(self.train_data_path)
         dataset = dataset.train_test_split(test_size=0.2,
                                            shuffle=True,
                                            seed=42)
 
         self.data_train = dataset["train"]
         self.data_val = dataset["test"]
-        #self.data_test = dataset
+        dataset = self.load_dataset(self.test_data_path)
+        self.data_test = dataset
 
 
     def prepare_data(self):
@@ -52,16 +56,16 @@ class JigsawDataModule(BaseDataModule):
         # Get Training Data from cc100 for MLM
         log.info("Check Data...")
         
-        if os.path.exists(self.path_to_data):
-            log.info(f"The file '{self.path_to_data}' exists.")
+        if os.path.exists(self.train_data_path) and os.path.exists(self.test_data_path):
+            log.info(f"The dataset files exists.")
         else:
-            raise FileNotFoundError(f"The file '{self.path_to_data}' does not exist.")
+            raise FileNotFoundError(f"The dataset files do not exist.")
     
 
     # TODO: Move to Collator
-    def load_dataset(self):
+    def load_dataset(self, path):
         log.warning("Load CSV File...")
-        df = pd.read_csv(self.path_to_data)
+        df = pd.read_csv(path)
         if self.testing:
             df = df.iloc[:100]
         log.warning("Create coarsed grained annotation...")
@@ -76,7 +80,7 @@ class JigsawDataModule(BaseDataModule):
         
         # https://github.com/huggingface/datasets/issues/2583
         # language_dataset = language_dataset.with_format("torch")
-        #dataset = dataset.with_format("torch")
+        # dataset = dataset.with_format("torch")
         log.warning("Tokenize Dataset...")
         # TODO: This Part should happen in Collator?
         dataset = dataset.map(self.tokenization)
@@ -88,7 +92,7 @@ class JigsawDataModule(BaseDataModule):
 
 
     def create_coarsed_grained_annotation(self, df, drop_irrelevant_columns=True):
-        MAPPING = {"religion": ["atheist", "buddhist", "christian", "hindu", "jewish", "other_religion"],
+        MAPPING = {"religion": ["atheist", "buddhist", "muslim", "christian", "hindu", "jewish", "other_religion"],
                    "race": ["white", "asian", "black", "latino", "other_race_or_ethnicity"],
                    "gender_and_sexual_orientation": ["bisexual", "female", "male", "heterosexual",
                                                      "homosexual_gay_or_lesbian", "transgender", "other_gender", 
@@ -96,6 +100,10 @@ class JigsawDataModule(BaseDataModule):
         
         result = pd.DataFrame({key: (df[MAPPING[key]] >= 0.5).any(axis=1).astype(int) for key in MAPPING})
         df_combined = pd.concat([df, result], axis=1)
+        
+        # For Test Set
+        if "toxicity" in df_combined:
+            df_combined = df_combined.rename(columns={"toxicity": "target"})
         
         if drop_irrelevant_columns:
             df_combined = df_combined[["comment_text", "target", "religion", "race", "gender_and_sexual_orientation"]]

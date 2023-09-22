@@ -8,8 +8,6 @@ from src.module.mixin.eval import EvalMixin
 import torch
 from omegaconf import DictConfig
 from src.utils import utils
-from src.utils.assert_functions import assert_functions
-from src.utils.debug import debug_embedding_updating
 from torch.nn import functional as F
 log = utils.get_logger(__name__)
 import hydra
@@ -95,12 +93,6 @@ class BaseModule(OptimizerMixin, EvalMixin, pl.LightningModule):
         self.log("train/loss", outputs["loss"])
         return outputs
 
-
-    def test_step(self, batch, batch_idx):
-        preds, loss, acc = self._get_preds_loss_accuracy(batch)
-        self.log("test_loss", loss)
-        self.log("test_accuracy", acc)
-        return {"loss": loss, "acc": acc}
 
     def _get_preds_loss_accuracy(self, batch):
         """convenience function since train/valid/test steps are similar"""

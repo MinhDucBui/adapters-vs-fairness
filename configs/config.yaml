@@ -12,11 +12,6 @@ defaults:
   # Define (Train/Val) Datamodule
   - datamodule: jigsaw.yaml
 
-  #- evaluation@evaluation.mlm: mlm.yaml
-  #- evaluation@evaluation.retrieval_cos_mean: retrieval_cos_mean.yaml
-  #- evaluation@evaluation.retrieval_cos_cls: retrieval_cos_cls.yaml
-  #- evaluation@evaluation.retrieval_bertscore: retrieval_bertscore.yaml
-
   # Utils
   - callbacks: null # set this to null if you don't want to use callbacks
   - logger: wandb # set logger here or use command line (e.g. `python run.py logger=wandb`)
@@ -30,6 +25,7 @@ defaults:
 
 # If you want to do one val epoch before training
 val_before_training: False
+test_after_training: True
 
 # If you want to conntinue training, then give checkpoint path
 # Otherwise, delete ckpt_path
