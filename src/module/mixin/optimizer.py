@@ -40,11 +40,10 @@ class OptimizerMixin:
                 num_training_batches = len(dataloader)
         else:
             num_training_batches = len(self.train_dataloader())
-
         return (
             num_training_batches
             * self.trainer.max_epochs
-            // max(1, self.trainer.gpus)
+            // max(1, self.trainer.num_devices)
         )
     
 
