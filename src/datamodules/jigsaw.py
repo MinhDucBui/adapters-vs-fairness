@@ -58,10 +58,19 @@ class JigsawDataModule(BaseDataModule):
         # Get Training Data from cc100 for MLM
         log.info("Check Data...")
 
+        # Check if the dataset files exist
         if os.path.exists(self.train_data_path) and os.path.exists(self.test_data_path):
             log.info(f"The dataset files exists.")
         else:
-            raise FileNotFoundError(f"The dataset files do not exist.")
+            # Give out an error if the dataset files do not exist.
+            # Print the path of the dataset files
+            log.error("The dataset files do not exist.")
+            if not os.path.exists(self.train_data_path):
+                FileNotFoundError(
+                    f"Train data file not found at: {self.train_data_path}")
+            if not os.path.exists(self.test_data_path):
+                FileNotFoundError(
+                    f"Test data file not found at: {self.test_data_path}")
 
     # TODO: Move to Collator
 
