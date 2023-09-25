@@ -103,6 +103,9 @@ class JigsawDataModule(BaseDataModule):
             axis=1).astype(int) for key in MAPPING})
         df_combined = pd.concat([df, result], axis=1)
 
+        # Fill Nan values in comment_text with empty string
+        df_combined["comment_text"] = df_combined["comment_text"].fillna("")
+
         # For Test Set
         if "toxicity" in df_combined:
             df_combined = df_combined.rename(columns={"toxicity": "target"})
