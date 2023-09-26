@@ -1,25 +1,13 @@
-config_callback:
-  # key in your config
-  # i.e. config.datamodule.dataset_cfg in my experiments
-  students.individual:
-    # for this config
-    # do config callback as specified below
-    _recursive_: false
-    _target_: src.utils.hydra.expand
-    keys: ["student_.*"]
-    gen_keys: false
-
-model_checkpoint:
+model_checkpoint_on_step:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
-  monitor: "val/retrieval/student_1_tr-student_0_en/mrr" # name of the logged metric which determines when model is improving
+  monitor: val/acc # name of the logged metric which determines when model is improving
   mode: "max" # can be "max" or "min"
-  save_top_k: 3 # save k best models (determined by above metric)
-  save_last: True # additionaly always save model from last epoch
-  every_n_train_steps: ${trainer.val_check_interval}
-  verbose: False
+  every_n_epochs: 1 # truncated length of MNLI train / 16
+  verbose: true
+  save_top_k: 1 # -1 -> all models are saved
+  save_last: true # additionaly always save model from last epoch
   dirpath: "checkpoints/"
-  filename: "{epoch}-{step}"
-  auto_insert_metric_name: False
+  auto_insert_metric_name: false
 
 #early_stopping:
 #  _target_: pytorch_lightning.callbacks.EarlyStopping

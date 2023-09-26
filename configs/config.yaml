@@ -13,7 +13,7 @@ defaults:
   - datamodule: jigsaw.yaml
 
   # Utils
-  - callbacks: null # set this to null if you don't want to use callbacks
+  - callbacks: default # set this to null if you don't want to use callbacks
   - logger: wandb # set logger here or use command line (e.g. `python run.py logger=wandb`)
   #- experiment: monolingual
   - hydra: default.yaml
@@ -41,7 +41,7 @@ seed: 42
 work_dir: ${hydra:runtime.cwd}
 
 # path to folder with data
-data_dir: /pfs/data5/home/ma/ma_ma/ma_mbui/clkd/data
+data_dir: /Users/duc/Desktop/Projects/adapters-vs-fairness/data
 
 # Path to CC100 Folder for MLM pretraining
 jigsaw: ${data_dir}/jigsaw
