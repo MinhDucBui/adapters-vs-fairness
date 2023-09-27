@@ -14,4 +14,3 @@ datamodule:
 trainer:
     accelerator: gpu
     devices: 1
-    val_check_interval: 0.25
