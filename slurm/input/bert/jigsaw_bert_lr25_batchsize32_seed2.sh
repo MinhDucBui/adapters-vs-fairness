@@ -3,7 +3,7 @@
 #SBATCH --job-name=test_bert
 #SBATCH --gres=gpu:1
 #SBATCH --mem=90000
-#SBATCH --time=24:00:00
+#SBATCH --time=29:00:00
 #SBATCH -o /home/ma/ma_ma/ma_mbui/clkd/slurm/output/slurm-%j.out
 
 now=$(date +"%T")
@@ -14,7 +14,7 @@ echo "Program starts:  $now"
 # Run script
 # conda activate clkd_fairness
 export HYDRA_FULL_ERROR=1
-srun python /home/ma/ma_ma/ma_mbui/clkd/run.py +experiment=jigsaw_distillbert
+srun python /home/ma/ma_ma/ma_mbui/clkd/run.py +experiment=jigsaw_bert_warmup seed=2
 
 
 end=$(date +"%T")
