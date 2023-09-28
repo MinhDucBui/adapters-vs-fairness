@@ -37,6 +37,7 @@ class EqualizedOdds(Metric):
 
         group_fpr_dict = {}
         group_tpr_dict = {}
+        group_fnr_dict = {}
         balanced_accuracy = {}
 
         # use loop to compute
@@ -64,20 +65,26 @@ class EqualizedOdds(Metric):
             # Calculate TP/FP for the sensitive group
             group_tp_ids = (references == y) & (predictions == y) & (group_id)
             group_fp_ids = (references != y) & (predictions == y) & (group_id)
+            group_fn_ids = (references == y) & (predictions != y) & (group_id)
 
             # Calculate TP/FP for the complementary group
             group_tp_ids_com = (references == y) & (predictions == y) & (group_com_id)
             group_fp_ids_com = (references != y) & (predictions == y) & (group_com_id)
+            group_fn_ids_com = (references == y) & (predictions != y) & (group_com_id)
 
             group_tpr = torch.sum(group_tp_ids) / group_pos if group_pos != 0 else 0
             group_fpr = torch.sum(group_fp_ids) / group_neg if group_neg != 0 else 0
+            group_fnr = torch.sum(group_fn_ids) / group_pos if group_pos != 0 else 0
             group_tpr_com = torch.sum(group_tp_ids_com) / group_pos_com if group_pos_com != 0 else 0
             group_fpr_com = torch.sum(group_fp_ids_com) / group_neg_com if group_neg_com != 0 else 0
+            group_fnr_com = torch.sum(group_fn_ids_com) / group_pos_com if group_pos_com != 0 else 0
 
             group_tpr_dict[(1, a_idx)] = group_tpr
             group_fpr_dict[(1, a_idx)] = group_fpr
+            group_fnr_dict[(1, a_idx)] = group_fnr
             group_tpr_dict[(0, a_idx)] = group_tpr_com
             group_fpr_dict[(0, a_idx)] = group_fpr_com
+            group_fnr_dict[(0, a_idx)] = group_fnr_com
             if sum(group_id) != 0:
                 preds_group = predictions[group_id]
                 reference_group = references[group_id]
@@ -91,6 +98,7 @@ class EqualizedOdds(Metric):
         group_metric_rates = {
             'fpr': group_fpr_dict,
             'tpr': group_tpr_dict,
+            'fnr': group_fnr_dict,
             "balanced_accuracy": balanced_accuracy
         }
 
@@ -115,11 +123,15 @@ class EqualizedOdds(Metric):
         )
 
         eo_per_attribute = []
+        fnr_dict = {}
         for a_idx in range(num_a_values):
             tpr_diff = torch.abs(group_metric_rates['tpr'][(
                 1, a_idx)] - group_metric_rates['tpr'][(0, a_idx)])
             fpr_diff = torch.abs(group_metric_rates['fpr'][(
                 1, a_idx)] - group_metric_rates['fpr'][(0, a_idx)])
+            fnr_diff = torch.abs(group_metric_rates['fnr'][(
+                1, a_idx)] - group_metric_rates['fnr'][(0, a_idx)])
+            fnr_dict["fnr/" + self.mapping[a_idx]] = fnr_diff
             eo_per_attribute.append(torch.max(tpr_diff, fpr_diff))
 
         # Initialize an empty dictionary
@@ -138,4 +150,4 @@ class EqualizedOdds(Metric):
                 new_key = key + "/" + self.mapping[subkey[1]] + groupname
                 unpacked_dict[new_key] = subvalue
 
-        return {**unpacked_dict, **metrics}
+        return {**unpacked_dict, **metrics, **fnr_dict}
