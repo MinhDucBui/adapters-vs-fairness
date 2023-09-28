@@ -9,5 +9,7 @@ defaults:
 pin_memory: False
 train_data_path: ${jigsaw}/train_subset.csv
 test_data_path: ${jigsaw}/test_private_expanded.csv
+shuffle: True
+split_seed: 42
 batch_size: 32
 num_workers: 0
