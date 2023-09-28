@@ -3,6 +3,7 @@ defaults:
   - /evaluation: jigsaw_evaluation
   
 _target_: src.module.jigsaw_classification.JigsawClassification
+adapters: False
 model:
   _target_: transformers.AutoModelForSequenceClassification.from_pretrained
   num_labels: ???
