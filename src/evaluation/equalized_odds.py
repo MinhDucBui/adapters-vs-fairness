@@ -131,7 +131,7 @@ class EqualizedOdds(Metric):
                 1, a_idx)] - group_metric_rates['fpr'][(0, a_idx)])
             fnr_diff = torch.abs(group_metric_rates['fnr'][(
                 1, a_idx)] - group_metric_rates['fnr'][(0, a_idx)])
-            fnr_dict["fnr/" + self.mapping[a_idx]] = fnr_diff
+            fnr_dict["fnr_diff/" + self.mapping[a_idx]] = fnr_diff
             eo_per_attribute.append(torch.max(tpr_diff, fpr_diff))
 
         # Initialize an empty dictionary
