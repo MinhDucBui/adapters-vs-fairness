@@ -7,28 +7,25 @@ import torch.nn.functional as F
 log = utils.get_logger(__name__)
 
 
-
 class JigsawClassification(BaseModule):
     def __init__(
             self,
             *args,
             **kwargs,
     ):
-        
+
         super().__init__(*args, **kwargs)
-        
-        
+
     def forward(self, batch, *args, **kwargs):
         # MOVE TO MODEL
         outputs = self.model.forward(
             input_ids=batch["input_ids"],
-            #token_type_ids=batch["token_type_ids"].squeeze(),
+            # token_type_ids=batch["token_type_ids"].squeeze(),
             attention_mask=batch["attention_mask"],
-            #labels=batch["labels"],
+            # labels=batch["labels"],
         )
         return outputs
-    
-    
+
     def training_step(self, batch: dict, batch_idx: int) -> dict[str, Any]:
         """Comprises training step of your model which takes a forward pass.
 
@@ -56,27 +53,28 @@ class JigsawClassification(BaseModule):
         """
         outputs = self(batch)
         # Calculate the binary cross-entropy loss using functional interface
-        loss = F.binary_cross_entropy_with_logits(outputs["logits"].squeeze(), batch["labels"])
+        loss = F.binary_cross_entropy_with_logits(
+            outputs["logits"].squeeze(), batch["labels"])
         self.log("train/loss", loss)
         return {"loss": loss}
-        
+
     def get_preds(self, outputs: dict, *args, **kwargs) -> dict:
-        #rob = torch.sigmoid(outputs["logits"])
+        # rob = torch.sigmoid(outputs["logits"])
         outputs["preds"] = (outputs["logits"] >= 0).int().squeeze()
-        #utputs["preds"] = (prob >= 0.5).int().squeeze()
+        # utputs["preds"] = (prob >= 0.5).int().squeeze()
         return outputs
-    
+
     def prepare_step_outputs(
         self, stage: str, step_outputs: dict, dataset: Optional[str] = None
     ) -> dict:
         return self.get_preds(step_outputs)
-    
+
     def prepare_outputs(
         self, stage: str, step_outputs: dict, dataset: Optional[str] = None
     ) -> dict:
         step_outputs = self.get_preds(step_outputs)
         return step_outputs
-    
+
     def prepare_batch(
         self, stage: str, batch: dict, dataset: Optional[str] = None
     ) -> dict:

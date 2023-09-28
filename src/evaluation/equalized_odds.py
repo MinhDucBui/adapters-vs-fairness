@@ -43,6 +43,7 @@ class EqualizedOdds(Metric):
         y = 1
         for a_idx in range(num_a_values):
             group_id = sensitive_attributes[:, a_idx] == 1
+            group_com_id = sensitive_attributes[:, a_idx] == 0
 
             # Calculate the total positive/negative examples for the sensitive group
             group_pos_label_ids = (references == y) & (group_id)
@@ -53,10 +54,8 @@ class EqualizedOdds(Metric):
                 group_neg_label_ids) != 0 else 0
 
             # Calculate the total positive/negative examples for the complementary group
-            group_pos_label_ids_com = (references == y) & (
-                sensitive_attributes[:, a_idx] == 0)
-            group_neg_label_ids_com = (references != y) & (
-                sensitive_attributes[:, a_idx] == 0)
+            group_pos_label_ids_com = (references == y) & (group_com_id)
+            group_neg_label_ids_com = (references != y) & (group_com_id)
             group_pos_com = torch.sum(group_pos_label_ids_com) if torch.sum(
                 group_pos_label_ids_com) != 0 else 0
             group_neg_com = torch.sum(group_neg_label_ids_com) if torch.sum(
@@ -67,15 +66,13 @@ class EqualizedOdds(Metric):
             group_fp_ids = (references != y) & (predictions == y) & (group_id)
 
             # Calculate TP/FP for the complementary group
-            group_tp_ids_com = (references == y) & (
-                predictions == y) & (sensitive_attributes[:, a_idx] == 0)
-            group_fp_ids_com = (references != y) & (
-                predictions == y) & (sensitive_attributes[:, a_idx] == 0)
+            group_tp_ids_com = (references == y) & (predictions == y) & (group_com_id)
+            group_fp_ids_com = (references != y) & (predictions == y) & (group_com_id)
 
-            group_tpr = torch.sum(group_tp_ids) / group_pos
-            group_fpr = torch.sum(group_fp_ids) / group_neg
-            group_tpr_com = torch.sum(group_tp_ids_com) / group_pos_com
-            group_fpr_com = torch.sum(group_fp_ids_com) / group_neg_com
+            group_tpr = torch.sum(group_tp_ids) / group_pos if group_pos != 0 else 0
+            group_fpr = torch.sum(group_fp_ids) / group_neg if group_neg != 0 else 0
+            group_tpr_com = torch.sum(group_tp_ids_com) / group_pos_com if group_pos_com != 0 else 0
+            group_fpr_com = torch.sum(group_fp_ids_com) / group_neg_com if group_neg_com != 0 else 0
 
             group_tpr_dict[(1, a_idx)] = group_tpr
             group_fpr_dict[(1, a_idx)] = group_fpr

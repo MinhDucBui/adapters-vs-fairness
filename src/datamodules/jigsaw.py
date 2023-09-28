@@ -17,6 +17,8 @@ class JigsawDataModule(BaseDataModule):
             train_data_path,
             test_data_path,
             testing=False,
+            split_seed=42,
+            shuffle=True,
             *args,
             **kwargs,
     ):
@@ -27,6 +29,8 @@ class JigsawDataModule(BaseDataModule):
         self.train_data_path = train_data_path
         self.test_data_path = test_data_path
         self.testing = testing
+        self.split_seed = split_seed
+        self.shuffle = shuffle
 
     @property
     def num_labels(self) -> int:
@@ -38,8 +42,8 @@ class JigsawDataModule(BaseDataModule):
             log.info("Check Data...")
             dataset = self.load_dataset(self.train_data_path)
             dataset = dataset.train_test_split(test_size=0.2,
-                                               shuffle=True,
-                                               seed=42)
+                                               shuffle=self.shuffle,
+                                               seed=self.split_seed)
 
             self.data_train = dataset["train"]
             self.data_val = dataset["test"]
