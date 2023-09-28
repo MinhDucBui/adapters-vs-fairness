@@ -2,6 +2,7 @@ from src.module.base_module import BaseModule
 from src.utils import utils
 from typing import Any, Callable, NamedTuple, Optional, Union
 import torch.nn.functional as F
+import hydra
 
 
 log = utils.get_logger(__name__)
@@ -10,11 +11,36 @@ log = utils.get_logger(__name__)
 class JigsawClassification(BaseModule):
     def __init__(
             self,
+            adapters=False,
             *args,
             **kwargs,
     ):
 
         super().__init__(*args, **kwargs)
+        self.adapters = adapters
+
+    def setup(self, stage: str):
+        """Sets up the TridentModule.
+
+        Setup the model if it does not exist yet. This enables inter-operability between your datamodule and model if you pass define a setup function in `module_cfg`, as the datamodule will be set up _before_ the model.
+
+        """
+        # TODO: maybe we can simplify and integrate this even better
+        if hasattr(self.hparams, "model"):
+            self.model = hydra.utils.instantiate(self.hparams.model)
+        else:
+            raise ValueError("Model not specified in self.hparams. Please provide a model.")
+
+        if ckpt := getattr(self.hparams, "weights_from_checkpoint", None):
+            self.weights_from_checkpoint(**ckpt)
+
+        if self.adapters:
+            # Add a new adapter
+            self.model.add_adapter("task_adapter", config="pfeiffer")
+            # Freezes rest of model
+            self.model.train_adapter("task_adapter")
+            # Activate the adapter, so it is used in every forward pass
+            self.model.set_active_adapters("task_adapter")
 
     def forward(self, batch, *args, **kwargs):
         # MOVE TO MODEL
