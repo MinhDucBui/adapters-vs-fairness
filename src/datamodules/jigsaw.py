@@ -19,6 +19,7 @@ class JigsawDataModule(BaseDataModule):
             testing=False,
             split_seed=42,
             shuffle=True,
+            stratified_sampling=True,
             *args,
             **kwargs,
     ):
@@ -31,6 +32,7 @@ class JigsawDataModule(BaseDataModule):
         self.testing = testing
         self.split_seed = split_seed
         self.shuffle = shuffle
+        self.stratified_sampling = stratified_sampling
 
     @property
     def num_labels(self) -> int:
@@ -41,9 +43,27 @@ class JigsawDataModule(BaseDataModule):
         if stage == "fit":
             log.info("Check Data...")
             dataset = self.load_dataset(self.train_data_path)
-            dataset = dataset.train_test_split(test_size=0.2,
-                                               shuffle=self.shuffle,
-                                               seed=self.split_seed)
+
+            if self.stratified_sampling:
+                # Specify the column name that contains the labels you want to stratify by
+                stratify_by_column = "unique_label"
+
+                # Create a copy of the column
+                dataset = dataset.add_column(
+                    "stratify_labels", dataset[stratify_by_column])
+
+                # Encode the copied column using class encoding
+                dataset = dataset.class_encode_column("stratify_labels")
+
+                # Perform stratified sampling
+                dataset = dataset.train_test_split(test_size=0.2,
+                                                   shuffle=True,  # You can set shuffle to True or False as needed
+                                                   seed=self.split_seed,
+                                                   stratify_by_column="stratify_labels")
+            else:
+                dataset = dataset.train_test_split(test_size=0.2,
+                                                   shuffle=self.shuffle,
+                                                   seed=self.split_seed)
 
             self.data_train = dataset["train"]
             self.data_val = dataset["test"]
@@ -116,6 +136,27 @@ class JigsawDataModule(BaseDataModule):
             axis=1).astype(int) for key in MAPPING})
         df_combined = pd.concat([df, result], axis=1)
 
+        def create_unique_label(row):
+            if row["religion"] == 0 and row["race"] == 0 and row["gender_and_sexual_orientation"] == 0:
+                return 0
+            if row["religion"] == 1 and row["race"] == 0 and row["gender_and_sexual_orientation"] == 0:
+                return 1
+            if row["religion"] == 0 and row["race"] == 1 and row["gender_and_sexual_orientation"] == 0:
+                return 2
+            if row["religion"] == 0 and row["race"] == 0 and row["gender_and_sexual_orientation"] == 1:
+                return 3
+            if row["religion"] == 1 and row["race"] == 1 and row["gender_and_sexual_orientation"] == 0:
+                return 4
+            if row["religion"] == 1 and row["race"] == 0 and row["gender_and_sexual_orientation"] == 1:
+                return 5
+            if row["religion"] == 0 and row["race"] == 1 and row["gender_and_sexual_orientation"] == 1:
+                return 6
+            if row["religion"] == 1 and row["race"] == 1 and row["gender_and_sexual_orientation"] == 1:
+                return 7
+
+        df_combined["unique_label"] = df_combined.apply(
+            lambda x: create_unique_label(x), axis=1)
+
         # Fill Nan values in comment_text with empty string
         df_combined["comment_text"] = df_combined["comment_text"].fillna("")
 
@@ -125,6 +166,7 @@ class JigsawDataModule(BaseDataModule):
 
         if drop_irrelevant_columns:
             df_combined = df_combined[[
-                "comment_text", "target", "religion", "race", "gender_and_sexual_orientation"]]
+                "comment_text", "target", "religion", "race",
+                "gender_and_sexual_orientation", "unique_label"]]
 
         return df_combined
