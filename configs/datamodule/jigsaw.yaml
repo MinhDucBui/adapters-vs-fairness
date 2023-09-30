@@ -13,3 +13,4 @@ shuffle: True
 split_seed: 42
 batch_size: 32
 num_workers: 0
+stratified_sampling: True
