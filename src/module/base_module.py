@@ -1,3 +1,4 @@
+import hydra
 from typing import Any, Callable, Optional, Union
 import pytorch_lightning as pl
 from src.module.mixin.optimizer import OptimizerMixin
@@ -6,34 +7,32 @@ from omegaconf import DictConfig
 from src.utils import utils
 from torch.nn import functional as F
 log = utils.get_logger(__name__)
-import hydra
-            
-            
-#class BaseModule(OptimizerMixin, EvalMixin, InitializeModelsMixin, pl.LightningModule):
+
+
+# class BaseModule(OptimizerMixin, EvalMixin, InitializeModelsMixin, pl.LightningModule):
 class BaseModule(OptimizerMixin, EvalMixin, pl.LightningModule):
-    def __init__(self,         
+    def __init__(self,
                  model: DictConfig,
                  optimizer: DictConfig,
                  scheduler: Optional[DictConfig],
-                 evaluation: Optional[DictConfig] = None,        
+                 evaluation: Optional[DictConfig] = None,
                  *args: Any,
                  **kwargs: Any,):
         """method used to define our model parameters"""
         # Sanity Check Config
-        #assert_functions(copy.deepcopy(cfg))
+        # assert_functions(copy.deepcopy(cfg))
 
         self.save_hyperparameters()
-        #self.cfg = cfg
-        #self.data_cfg = cfg.datamodule
-        #self.trainer_cfg = cfg.trainer
+        # self.cfg = cfg
+        # self.data_cfg = cfg.datamodule
+        # self.trainer_cfg = cfg.trainer
 
         pl.LightningModule.__init__(self)
         super().__init__()
-        
+
         # Lightning 2.0 requires manual management of evaluation step outputs
         self._eval_outputs = []
-        
-        
+
     def setup(self, stage: str):
         """Sets up the TridentModule.
 
@@ -54,11 +53,11 @@ class BaseModule(OptimizerMixin, EvalMixin, pl.LightningModule):
         if hasattr(self.hparams, "model"):
             self.model = hydra.utils.instantiate(self.hparams.model)
         else:
-            raise ValueError("Model not specified in self.hparams. Please provide a model.")
+            raise ValueError(
+                "Model not specified in self.hparams. Please provide a model.")
 
         if ckpt := getattr(self.hparams, "weights_from_checkpoint", None):
             self.weights_from_checkpoint(**ckpt)
-    
 
     def training_step(self, batch: dict, batch_idx: int) -> dict[str, Any]:
         """Comprises training step of your model which takes a forward pass.
@@ -89,27 +88,28 @@ class BaseModule(OptimizerMixin, EvalMixin, pl.LightningModule):
         self.log("train/loss", outputs["loss"])
         return outputs
 
-
     def _get_preds_loss_accuracy(self, batch):
         """convenience function since train/valid/test steps are similar"""
         output = self.model.forward(
             input_ids=batch["input_ids"],
-            #token_type_ids=batch["token_type_ids"].squeeze(),
+            # token_type_ids=batch["token_type_ids"].squeeze(),
             attention_mask=batch["attention_mask"],
-            #labels=batch["labels"],
+            # labels=batch["labels"],
         )
         # Assuming you have a binary tensor of labels
-        logits = output.logits  # Assuming the logits are of shape (batch_size, 1)
+        # Assuming the logits are of shape (batch_size, 1)
+        logits = output.logits
 
         # Reshape the labels to match the shape of logits
         labels = batch["labels"].float().unsqueeze(1)  # Shape: (batch_size, 1)
-  
-        # Calculate the binary cross-entropy loss
-        loss = F.binary_cross_entropy_with_logits(logits, labels, reduction='mean')
 
-        #preds = torch.argmax(output.logits, dim=1)
-        #loss = output.loss.mean()
-        #acc = self.accuracy.compute(
+        # Calculate the binary cross-entropy loss
+        loss = F.binary_cross_entropy_with_logits(
+            logits, labels, reduction='mean')
+
+        # preds = torch.argmax(output.logits, dim=1)
+        # loss = output.loss.mean()
+        # acc = self.accuracy.compute(
         #    references=batch["labels"].data, predictions=preds.data
-        #)
+        # )
         return 0, loss, 0

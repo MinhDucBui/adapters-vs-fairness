@@ -68,17 +68,25 @@ class BaseDataModule(LightningDataModule, ABC):
         self.data_train: Optional[Dataset] = None
         self.data_val: Optional[Dataset] = None
         self.data_test: Optional[Dataset] = None
-        #self.dataset_val = None
-        self.tokenizer =  hydra.utils.instantiate(tokenizer)
-        self.collate_fn: Callable = hydra.utils.instantiate(collate_fn, tokenizer=self.tokenizer)
-        self.train_collate_fn: Callable = hydra.utils.instantiate(train_collate_fn)
+        # self.dataset_val = None
+        self.tokenizer = hydra.utils.instantiate(tokenizer)
+        # Check if tokenizer is GPT-2 Tokenizer
+        if tokenizer.pretrained_model_name_or_path == "gpt2":
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.tokenizer.padding_side = "left"
+
+        self.collate_fn: Callable = hydra.utils.instantiate(
+            collate_fn, tokenizer=self.tokenizer)
+        self.train_collate_fn: Callable = hydra.utils.instantiate(
+            train_collate_fn)
         if self.eval_cfg:
             self.val_collate_fn = []
             self.val_collate_fn_dict = {}
             for key, value in self.eval_cfg.items():
                 self.val_collate_fn_dict[key] = self.eval_cfg[key]["collate_fn"]
         else:
-            self.val_collate_fn: Callable = hydra.utils.instantiate(val_collate_fn, tokenizer=tokenizer)
+            self.val_collate_fn: Callable = hydra.utils.instantiate(
+                val_collate_fn, tokenizer=tokenizer)
             if self.val_collate_fn is not None:
                 self.val_collate_fn = self.val_collate_fn()
 
@@ -131,27 +139,27 @@ class BaseDataModule(LightningDataModule, ABC):
                            "collate_fn": self.train_collate_fn if self.train_collate_fn is not None else self.collate_fn,
                            # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
                            "shuffle": False}
-        train_dataloader = DataLoader(dataset=self.data_train, **dataloader_args)
+        train_dataloader = DataLoader(
+            dataset=self.data_train, **dataloader_args)
         return train_dataloader
 
     # TODO(fdschmidt93): support custom sampler
     def val_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         dataloader_args = {"batch_size": self.batch_size,
-                       "num_workers": self.num_workers,
-                       "pin_memory": self.pin_memory,
-                       "collate_fn":  self.collate_fn,
-                       # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
-                       "shuffle": False}
+                           "num_workers": self.num_workers,
+                           "pin_memory": self.pin_memory,
+                           "collate_fn":  self.collate_fn,
+                           # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
+                           "shuffle": False}
         val_dataloader = DataLoader(dataset=self.data_val, **dataloader_args)
         return val_dataloader
 
     def test_dataloader(self) -> Union[DataLoader, List[DataLoader]]:
         dataloader_args = {"batch_size": self.batch_size,
-                       "num_workers": self.num_workers,
-                       "pin_memory": self.pin_memory,
-                       "collate_fn":  self.collate_fn,
-                       # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
-                       "shuffle": False}
+                           "num_workers": self.num_workers,
+                           "pin_memory": self.pin_memory,
+                           "collate_fn":  self.collate_fn,
+                           # Changed: can only shuffle in map-style dataset. Will fail for iterable dataset
+                           "shuffle": False}
         test_dataloader = DataLoader(dataset=self.data_test, **dataloader_args)
         return test_dataloader
-

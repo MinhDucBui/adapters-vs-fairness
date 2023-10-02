@@ -28,8 +28,12 @@ class JigsawClassification(BaseModule):
         # TODO: maybe we can simplify and integrate this even better
         if hasattr(self.hparams, "model"):
             self.model = hydra.utils.instantiate(self.hparams.model)
+            # Check if model is GPT-2
+            if self.hparams.model.pretrained_model_name_or_path == "gpt2":
+                self.model.config.pad_token_id = self.model.config.eos_token_id
         else:
-            raise ValueError("Model not specified in self.hparams. Please provide a model.")
+            raise ValueError(
+                "Model not specified in self.hparams. Please provide a model.")
 
         if ckpt := getattr(self.hparams, "weights_from_checkpoint", None):
             self.weights_from_checkpoint(**ckpt)
@@ -50,6 +54,7 @@ class JigsawClassification(BaseModule):
             attention_mask=batch["attention_mask"],
             # labels=batch["labels"],
         )
+
         return outputs
 
     def training_step(self, batch: dict, batch_idx: int) -> dict[str, Any]:
