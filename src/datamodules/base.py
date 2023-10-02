@@ -74,6 +74,8 @@ class BaseDataModule(LightningDataModule, ABC):
         if tokenizer.pretrained_model_name_or_path == "gpt2":
             self.tokenizer.pad_token = self.tokenizer.eos_token
             self.tokenizer.padding_side = "left"
+            # Set max sequence length to 512
+            self.tokenizer.model_max_length = 512
 
         self.collate_fn: Callable = hydra.utils.instantiate(
             collate_fn, tokenizer=self.tokenizer)
