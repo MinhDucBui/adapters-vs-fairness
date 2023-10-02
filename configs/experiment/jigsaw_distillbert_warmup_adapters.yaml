@@ -1,7 +1,11 @@
 # @package _global_
-
+defaults:
+  - override /module: classification_warmup.yaml
 
 module:
+    adapters: True
+    optimizer:
+        lr: 0.0001
     model:
         num_labels: 1
         pretrained_model_name_or_path: distilbert-base-uncased
@@ -14,4 +18,3 @@ datamodule:
 trainer:
     accelerator: gpu
     devices: 1
-    val_check_interval: 0.25

@@ -1,10 +1,12 @@
 # @package _global_
 
+defaults:
+  - override /module: classification_warmup.yaml
 
 module:
     model:
         num_labels: 1
-        pretrained_model_name_or_path: distilbert-base-uncased
+        pretrained_model_name_or_path: roberta-base
         
 datamodule:
     batch_size: 32
@@ -14,4 +16,4 @@ datamodule:
 trainer:
     accelerator: gpu
     devices: 1
-    val_check_interval: 0.25
+
