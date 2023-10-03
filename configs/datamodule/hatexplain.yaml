@@ -1,0 +1,13 @@
+_recursive_: False
+_target_: src.datamodules.hatexplain.HateXplainDataModule
+
+defaults:
+  - /collate_fn: padding
+  - /tokenizer: autotokenizer
+
+
+pin_memory: False
+dataset_path: ${hatexplain}/dataset.json
+post_id_division_path: ${hatexplain}/post_id_divisions.json
+batch_size: 32
+num_workers: 0
