@@ -84,7 +84,8 @@ class EvalMixin:
         for k, v in outputs.items():
             if isinstance(v, torch.Tensor):
                 if v.shape[0] != num_samples:
-                    message = prefix + f"{k} has {v.shape[0]}/{num_samples} rows"
+                    message = prefix + \
+                        f"{k} has {v.shape[0]}/{num_samples} rows"
                     log.warn(message)
                     keys.append(k)
 
@@ -103,7 +104,9 @@ class EvalMixin:
         stage_metrics_cfg: Union[None, DictConfig] = self.evaluation.metrics_cfg.get(
             stage, None
         )
-        dataset: Union[Dataset, dict[str, Dataset]] = getattr(self.trainer.datamodule, f"data_{stage}")  # type: ignore - datamodule not appropriately embedded
+        # type: ignore - datamodule not appropriately embedded
+        dataset: Union[Dataset, dict[str, Dataset]] = getattr(
+            self.trainer.datamodule, f"data_{stage}")
 
         if stage_metrics_cfg is not None:
             configs = (
@@ -172,7 +175,8 @@ class EvalMixin:
         log_kwargs["prog_bar"] = True
         if isinstance(input, dict):
             prefix = dataset_name + "/" + stage if dataset_name is not None else stage
-            log_kwargs["dictionary"] = {f"{prefix}/{k}": v for k, v in input.items()}
+            log_kwargs["dictionary"] = {
+                f"{prefix}/{k}": v for k, v in input.items()}
             self.log_dict(**log_kwargs)
         else:
             log_kwargs["name"] = f"{stage}/{metric_key}"
@@ -290,20 +294,22 @@ class EvalMixin:
             return
 
         step_collection_dico: Union[None, DictConfig] = OmegaConf.select(
-             self.evaluation, f"step_outputs"
+            self.evaluation, f"step_outputs"
         )
         batch = self.prepare_batch(stage=stage, batch=batch)
         outputs = self.prepare_outputs(stage, self(batch), batch)
         if metrics_cfg is not None:
             for v in metrics_cfg.values():
                 if getattr(v, "compute_on", False) == "eval_step":
-                    kwargs = self._prepare_metric_input(v.kwargs, outputs, batch)
+                    kwargs = self._prepare_metric_input(
+                        v.kwargs, outputs, batch)
                     v["metric"](**kwargs)
         if dataloader_idx is None:
             dataloader_idx = 0
-        outputs = self._collect_step_output(outputs, batch, step_collection_dico)
+        outputs = self._collect_step_output(
+            outputs, batch, step_collection_dico)
         self._eval_outputs.append(outputs)
-        
+
     def eval_epoch_end_dataset(
         self,
         stage: str,
@@ -372,9 +378,11 @@ class EvalMixin:
             step_outputs=step_outputs,
             metrics_cfg=metrics_cfg,
         )
-        # clean up cached dataset(s) outputs
-        self._eval_outputs.clear()
-
+        if stage == "test":
+            return self._eval_outputs
+        else:
+            # clean up cached dataset(s) outputs
+            self._eval_outputs.clear()
 
     def validation_step(
         self, batch: dict, batch_idx: int, dataloader_idx: Optional[int] = None
