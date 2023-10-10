@@ -12,12 +12,14 @@ class JigsawClassification(BaseModule):
     def __init__(
             self,
             adapters=False,
+            adapters_reduction_factor=16,
             *args,
             **kwargs,
     ):
 
         super().__init__(*args, **kwargs)
         self.adapters = adapters
+        self.adapters_reduction_factor = adapters_reduction_factor
 
     def setup(self, stage: str):
         """Sets up the TridentModule.
@@ -40,7 +42,9 @@ class JigsawClassification(BaseModule):
 
         if self.adapters:
             # Add a new adapter
-            self.model.add_adapter("task_adapter", config="pfeiffer")
+            config_adapter = "pfeiffer[reduction_factor={}]".format(
+                self.adapters_reduction_factor)
+            self.model.add_adapter("task_adapter", config=config_adapter)
             # Freezes rest of model
             self.model.train_adapter("task_adapter")
             # Activate the adapter, so it is used in every forward pass
