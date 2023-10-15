@@ -42,6 +42,12 @@ python run.py
 
 # To change your accelerator
 python run.py trainer.accelerator=cpu
+
+# To change the learning rate
+python run.py module.optimizer.lr=0.000002
+
+# To change the random seed
+python run.py seed=0
 ```
 
 ### ⚡&nbsp;&nbsp;All Experiments
