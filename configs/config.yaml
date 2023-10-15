@@ -12,6 +12,8 @@ defaults:
   # Define (Train/Val) Datamodule
   - datamodule: jigsaw.yaml
 
+  - experiment: jigsaw_bert.yaml
+
   # Utils
   - callbacks: default # set this to null if you don't want to use callbacks
   - logger: wandb # set logger here or use command line (e.g. `python run.py logger=wandb`)
