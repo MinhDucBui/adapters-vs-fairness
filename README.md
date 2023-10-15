@@ -10,7 +10,7 @@
 </div>
 
 ## 📌&nbsp;&nbsp;Introduction
-Adapters are a parameter-efficient way to finetune pretrained models for specific target tasks. However, while they reduce training time, little is known about possible unwanted side effects of finetuning only the added layers as opposed to adapting an entire model. We focus specifically on the potential implications on fairness: we finetune 1) entire pretrained models and 2) adapters within the same models only on toxic text classification and evaluate all  models using two datasets -- 1) Jigsaw and 2) HateXplain.
+Our research addresses the trade-off between performance, efficiency, and fairness in NLP. We compare fully finetuned models to adapter modules in toxic text classification on the Jigsaw dataset. Adapters maintain accuracy and reduce training time, but fairness slightly decreases. Results vary across groups and settings, highlighting the need for case-specific evaluation.
 
 ## 🚀&nbsp;&nbsp;Quickstart
 
