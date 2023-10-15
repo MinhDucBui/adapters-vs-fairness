@@ -27,10 +27,6 @@ defaults:
 val_before_training: False
 test_after_training: True
 
-# If you want to conntinue training, then give checkpoint path
-# Otherwise, delete ckpt_path
-# ckpt_path: "/work-ceph/mbui/clkd/logs/runs/2022-03-05/23-25-04/checkpoints/last.ckpt"
-
 # Random Seed
 seed: 42
 
@@ -41,19 +37,11 @@ seed: 42
 work_dir: ${hydra:runtime.cwd}
 
 # path to folder with data
-data_dir: /Users/duc/Desktop/Projects/adapters-vs-fairness/data
+data_dir: ${hydra:runtime.cwd}/data
 
 # Path to CC100 Folder for MLM pretraining
 jigsaw: ${data_dir}/jigsaw
 
-# Path to parallel data Folder
-#parallel_data: ${data_dir}/parallel_data
-
-# Path to JW300 Folder for MLM Validation
-#jw300: ${data_dir}/jw300
-
-# Path to Tatoeba Folder for Retrieval Validation
-#tatoeba: ${data_dir}/tatoeba
 
 # use `python run.py debug=true` for easy debugging!
 # this will run 1 train, val and test loop with only 1 batch
