@@ -30,7 +30,7 @@ pip install -r requirements.txt
 # https://pytorch.org/get-started/
 ```
 
-Download Jigaw dataset from Kaggle [here]([https://data.statmt.org/cc-100/](https://www.kaggle.com/competitions/jigsaw-unintended-bias-in-toxicity-classification/data)). Put all csv files into data/jigsaw folder.
+Download Jigaw dataset from Kaggle [here](https://www.kaggle.com/competitions/jigsaw-unintended-bias-in-toxicity-classification/data). Put all csv files into data/jigsaw folder.
 
 Execute the main script. The default setting uses BERT.
 ```bash
@@ -39,6 +39,9 @@ export CUDA_VISIBLE_DEVICES=0
 
 # execute main script
 python run.py
+
+# To change your accelerator
+python run.py trainer.accelerator=cpu
 ```
 
 ### ⚡&nbsp;&nbsp;All Experiments
