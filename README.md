@@ -17,13 +17,11 @@ Our research addresses the trade-off between performance, efficiency, and fairne
 Configure your environment first.
 
 ```bash
-# clone project
-git clone https://github.com/MinhDucBui/clkd.git
-cd clkd
+# clone project, cd to project folder
 
 # [OPTIONAL] create conda environment
-conda create -n myenv python=3.9
-conda activate myenv
+conda create -n adapters_vs_fairness python=3.9
+conda activate adapters_vs_fairness
 
 # install requirements
 pip install -r requirements.txt
@@ -32,26 +30,9 @@ pip install -r requirements.txt
 # https://pytorch.org/get-started/
 ```
 
-Download English & Turkish dataset from cc100 [here](https://data.statmt.org/cc-100/). Alternatively, to speed up the downloading process, download Urdu-Swahili.
-```bash
-# change to data folder
-cd data/cc100
+Download Jigaw dataset from Kaggle [here]([https://data.statmt.org/cc-100/](https://www.kaggle.com/competitions/jigsaw-unintended-bias-in-toxicity-classification/data)). Put all csv files into data/jigsaw folder.
 
-# Download English Data (82GB) and Turkish Data (5.4GB)
-wget http://data.statmt.org/cc-100/en.txt.xz
-wget http://data.statmt.org/cc-100/tr.txt.xz
-
-# Alternative: Urdu (884MB) and Swahili (332MB)
-wget http://data.statmt.org/cc-100/ur.txt.xz
-wget http://data.statmt.org/cc-100/sw.txt.xz
-
-# Change back to original folder
-cd ..
-cd ..
-
-```
-
-Execute the main script. The default setting uses the same strategy as MonoShot.
+Execute the main script. The default setting uses BERT.
 ```bash
 # Choose GPU Device
 export CUDA_VISIBLE_DEVICES=0
