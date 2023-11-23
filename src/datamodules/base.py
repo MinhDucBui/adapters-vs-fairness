@@ -73,7 +73,7 @@ class BaseDataModule(LightningDataModule, ABC):
         # Check if tokenizer is GPT-2 Tokenizer
         if tokenizer.pretrained_model_name_or_path == "gpt2":
             self.tokenizer.pad_token = self.tokenizer.eos_token
-            self.tokenizer.padding_side = "left"
+            self.tokenizer.padding_side = "right"
             # Set max sequence length to 512
             self.tokenizer.model_max_length = 512
 

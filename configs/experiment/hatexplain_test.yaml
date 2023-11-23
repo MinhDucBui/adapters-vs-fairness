@@ -8,7 +8,7 @@ module:
     #adapters: True
     model:
         num_labels: 1
-        pretrained_model_name_or_path: distilbert-base-uncased
+        pretrained_model_name_or_path: bert-base-uncased
         
 datamodule:
     batch_size: 32

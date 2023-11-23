@@ -4,6 +4,7 @@ defaults:
   
 _target_: src.module.jigsaw_classification.JigsawClassification
 adapters: False
+lora: False
 model:
   _target_: transformers.AutoModelForSequenceClassification.from_pretrained
   num_labels: ???

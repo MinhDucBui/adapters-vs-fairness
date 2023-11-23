@@ -30,6 +30,19 @@ metrics_cfg:
       preds: "outputs:preds"
       target: "outputs:labels_binary"
       
+  acc_binary:
+    # instructions to instantiate metric, preferrably torchmetrics.Metric
+    metric:
+      _partial_: true
+      _target_: torchmetrics.functional.accuracy
+      task: "binary"
+
+    # either "eval_step" or "epoch_end"
+    compute_on: "epoch_end"
+    kwargs: 
+      preds: "outputs:preds"
+      target: "outputs:labels_binary"
+      
   eo:
     # instructions to instantiate metric, preferrably torchmetrics.Metric
     metric:

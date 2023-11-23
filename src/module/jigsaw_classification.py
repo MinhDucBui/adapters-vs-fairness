@@ -3,6 +3,7 @@ from src.utils import utils
 from typing import Any, Callable, NamedTuple, Optional, Union
 import torch.nn.functional as F
 import hydra
+from peft import LoraConfig, get_peft_model, TaskType
 
 
 log = utils.get_logger(__name__)
@@ -13,6 +14,7 @@ class JigsawClassification(BaseModule):
             self,
             adapters=False,
             adapters_reduction_factor=16,
+            lora=False
             *args,
             **kwargs,
     ):
@@ -20,6 +22,7 @@ class JigsawClassification(BaseModule):
         super().__init__(*args, **kwargs)
         self.adapters = adapters
         self.adapters_reduction_factor = adapters_reduction_factor
+        self.lora = lora
 
     def setup(self, stage: str):
         """Sets up the TridentModule.
@@ -49,6 +52,17 @@ class JigsawClassification(BaseModule):
             self.model.train_adapter("task_adapter")
             # Activate the adapter, so it is used in every forward pass
             self.model.set_active_adapters("task_adapter")
+        if self.lora:
+            # Define LoRA Config
+            peft_config = LoraConfig(task_type="SEQ_CLS",
+                                     target_modules=["q_lin", "v_lin"],
+                                     #inference_mode=False, 
+                                     r=16, 
+                                     lora_alpha=8, 
+                                     lora_dropout=0.1)
+            
+            self.model = get_peft_model(self.model, peft_config)
+            
 
     def forward(self, batch, *args, **kwargs):
         # MOVE TO MODEL
