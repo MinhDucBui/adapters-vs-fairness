@@ -49,8 +49,11 @@ python run.py module.optimizer.lr=0.000002
 # To change the random seed
 python run.py seed=0
 ```
+  
+  
+</details>
 
-### ⚡&nbsp;&nbsp;All Experiments
+### ⚡&nbsp;&nbsp;Change Model
 
 <details>
 <summary><b>Change to Bert+Adapters</b></summary>
@@ -167,6 +170,27 @@ python run.py experiment=roberta_large_lora
 
 </details>
 
+
+### ⚡&nbsp;&nbsp;Change Datamodule
+
+<details>
+<summary><b>Change to HateXplain Dataset</b></summary>
+
+
+```bash
+python run.py datamodule=hatexplain logger.wandb.project=hatexplain
+```
+</details>
+
+
+<details>
+<summary><b>Change to BIOS Dataset</b></summary>
+
+
+```bash
+python run.py datamodule=biasbios module=multiclass_classification module.model.num_labels=28 trainer.max_epochs=5 +datamodule.tokenizer.model_max_length=128 logger.wandb.project=biasbios
+```
+</details>
 <br>
 
 <br>
