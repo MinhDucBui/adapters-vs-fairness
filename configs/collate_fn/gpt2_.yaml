@@ -1,0 +1,3 @@
+_partial_: True
+_target_: transformers.data.data_collator.DataCollatorWithPadding
+padding: True

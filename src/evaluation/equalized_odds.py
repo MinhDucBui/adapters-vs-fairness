@@ -50,17 +50,17 @@ class EqualizedOdds(Metric):
             group_pos_label_ids = (references == y) & (group_id)
             group_neg_label_ids = (references != y) & (group_id)
             group_pos = torch.sum(group_pos_label_ids) if torch.sum(
-                group_pos_label_ids) != 0 else 0
+                group_pos_label_ids) != 0 else torch.tensor(0)
             group_neg = torch.sum(group_neg_label_ids) if torch.sum(
-                group_neg_label_ids) != 0 else 0
+                group_neg_label_ids) != 0 else torch.tensor(0)
 
             # Calculate the total positive/negative examples for the complementary group
             group_pos_label_ids_com = (references == y) & (group_com_id)
             group_neg_label_ids_com = (references != y) & (group_com_id)
             group_pos_com = torch.sum(group_pos_label_ids_com) if torch.sum(
-                group_pos_label_ids_com) != 0 else 0
+                group_pos_label_ids_com) != 0 else torch.tensor(0)
             group_neg_com = torch.sum(group_neg_label_ids_com) if torch.sum(
-                group_neg_label_ids_com) != 0 else 0
+                group_neg_label_ids_com) != 0 else torch.tensor(0)
 
             # Calculate TP/FP for the sensitive group
             group_tp_ids = (references == y) & (predictions == y) & (group_id)
@@ -72,12 +72,12 @@ class EqualizedOdds(Metric):
             group_fp_ids_com = (references != y) & (predictions == y) & (group_com_id)
             group_fn_ids_com = (references == y) & (predictions != y) & (group_com_id)
 
-            group_tpr = torch.sum(group_tp_ids) / group_pos if group_pos != 0 else 0
-            group_fpr = torch.sum(group_fp_ids) / group_neg if group_neg != 0 else 0
-            group_fnr = torch.sum(group_fn_ids) / group_pos if group_pos != 0 else 0
-            group_tpr_com = torch.sum(group_tp_ids_com) / group_pos_com if group_pos_com != 0 else 0
-            group_fpr_com = torch.sum(group_fp_ids_com) / group_neg_com if group_neg_com != 0 else 0
-            group_fnr_com = torch.sum(group_fn_ids_com) / group_pos_com if group_pos_com != 0 else 0
+            group_tpr = torch.sum(group_tp_ids) / group_pos if group_pos != 0 else torch.tensor(0)
+            group_fpr = torch.sum(group_fp_ids) / group_neg if group_neg != 0 else torch.tensor(0)
+            group_fnr = torch.sum(group_fn_ids) / group_pos if group_pos != 0 else torch.tensor(0)
+            group_tpr_com = torch.sum(group_tp_ids_com) / group_pos_com if group_pos_com != 0 else torch.tensor(0)
+            group_fpr_com = torch.sum(group_fp_ids_com) / group_neg_com if group_neg_com != 0 else torch.tensor(0)
+            group_fnr_com = torch.sum(group_fn_ids_com) / group_pos_com if group_pos_com != 0 else torch.tensor(0)
 
             group_tpr_dict[(1, a_idx)] = group_tpr
             group_fpr_dict[(1, a_idx)] = group_fpr
@@ -151,3 +151,116 @@ class EqualizedOdds(Metric):
                 unpacked_dict[new_key] = subvalue
 
         return {**unpacked_dict, **metrics, **fnr_dict}
+    
+    
+P_MAPPING_INDEX_CLASS = {
+    0: 'professor',
+    1: 'physician',
+    2: 'attorney',
+    3: 'photographer',
+    4: 'journalist',
+    5: 'nurse',
+    6: 'psychologist',
+    7: 'teacher',
+    8: 'dentist',
+    9: 'surgeon',
+    10: 'architect',
+    11: 'painter',
+    12: 'model',
+    13: 'poet',
+    14: 'filmmaker',
+    15: 'software_engineer',
+    16: 'accountant',
+    17: 'composer',
+    18: 'dietitian',
+    19: 'comedian',
+    20: 'chiropractor',
+    21: 'pastor',
+    22: 'paralegal',
+    23: 'yoga_teacher',
+    24: 'dj',
+    25: 'interior_designer',
+    26: 'personal_trainer',
+    27: 'rapper'
+}
+P_MAPPING_CLASS_INDEX = {v: k for k, v in P_MAPPING_INDEX_CLASS.items()}
+
+
+G_MAPPIN_INDEX_CLASS = {0: 'f', 1: 'm'}
+G_MAPPING_CLASS_INDEX = {v: k for k, v in G_MAPPIN_INDEX_CLASS.items()}
+
+class TPRGap(Metric):
+    def __init__(self, dist_sync_on_step=False):
+        # call `self.add_state`for every internal state that is needed for the metrics computations
+        # dist_reduce_fx indicates the function that should be used to reduce
+        # state from multiple processes
+        super().__init__(dist_sync_on_step=dist_sync_on_step)
+
+        self.add_state("preds", default=[], dist_reduce_fx=None)
+        self.add_state("target", default=[], dist_reduce_fx=None)
+        self.add_state("gender", default=[], dist_reduce_fx=None)
+
+    def update(self, preds, target, gender):
+        self.gender = gender
+        self.preds = preds
+        self.target = target
+
+    def compute(self):
+        return self._compute(self.preds, self.target, self.gender)
+
+    def _get_unique_labels(self, labels):
+        unique_labels = torch.unique(labels)
+        return unique_labels.tolist()
+
+    def _compute(self, predictions, label, gender):
+        ''' Actual Implementation of compute metrics
+        '''
+
+        # Assuming that each row in the logits corresponds to a sample and contains probabilities for each class
+        # You can use argmax to get the predicted class for each sample
+        predicted_labels = torch.argmax(predictions, dim=1)
+
+        # Initialize dictionaries to store true positives and false negatives per gender and label class
+        tp_dict = {}
+        fn_dict = {}
+
+        # Iterate through each gender and label class combination
+        for g in torch.unique(gender):
+            for l in torch.unique(label):
+                mask = (gender == g) & (label == l)
+                mask = mask.squeeze()
+                true_positives = torch.sum((predicted_labels[mask] == l).float())
+                false_negatives = torch.sum((predicted_labels[mask] != l).float())
+                tp_dict[(G_MAPPIN_INDEX_CLASS[g.item()], P_MAPPING_INDEX_CLASS[l.item()])] = true_positives
+                fn_dict[(G_MAPPIN_INDEX_CLASS[g.item()], P_MAPPING_INDEX_CLASS[l.item()])] = false_negatives
+
+        # Calculate True Positive Rate (TPR) per gender and label class
+        tpr_dict = {key: tp_dict[key] / (tp_dict[key] + fn_dict[key]) for key in tp_dict}
+
+        # Calculate and print the difference of TPR
+        for l in torch.unique(label):
+            tpr_diff = tpr_dict[('f', P_MAPPING_INDEX_CLASS[l.item()])] \
+                - tpr_dict[('m', P_MAPPING_INDEX_CLASS[l.item()])]
+
+        unified_dict = {}
+        for (g, l), tpr in tpr_dict.items():
+            unified_dict[f"TPR_{g}_{l}"] = tpr.item()
+
+        # Calculate and save the difference of TPR
+        tpr_diff_values = []
+        for l in torch.unique(label):
+            tpr_diff = tpr_dict[('f', P_MAPPING_INDEX_CLASS[l.item()])] - tpr_dict[('m', P_MAPPING_INDEX_CLASS[l.item()])]
+            tpr_diff_values.append(tpr_diff)
+            unified_dict[f"TPR_Diff_{P_MAPPING_INDEX_CLASS[l.item()]}"] = tpr_diff.item()
+            
+        rmse = torch.sqrt(torch.mean(torch.tensor(tpr_diff_values) ** 2))
+        
+        unified_dict["TPR_RMSE"] =  rmse
+        
+        # Calculate TPED
+        TPED = sum(abs(tpr_dict[('f', P_MAPPING_INDEX_CLASS[l.item()])] \
+                       - tpr_dict[('m', P_MAPPING_INDEX_CLASS[l.item()])]) for l in torch.unique(label))
+
+            
+        return {**unified_dict}
+    

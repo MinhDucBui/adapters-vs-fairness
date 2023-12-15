@@ -10,7 +10,7 @@ import adapters
 log = utils.get_logger(__name__)
 
 
-class JigsawClassification(BaseModule):
+class MultiClassClassification(BaseModule):
     def __init__(
             self,
             adapters=False,
@@ -107,14 +107,13 @@ class JigsawClassification(BaseModule):
         """
         outputs = self(batch)
         # Calculate the binary cross-entropy loss using functional interface
-        loss = F.binary_cross_entropy_with_logits(
-            outputs["logits"].squeeze(), batch["labels"])
+        loss = F.cross_entropy(outputs["logits"].squeeze(), batch["labels"])
         self.log("train/loss", loss)
         return {"loss": loss}
 
     def get_preds(self, outputs: dict, *args, **kwargs) -> dict:
         # rob = torch.sigmoid(outputs["logits"])
-        outputs["preds"] = (outputs["logits"] >= 0).int().squeeze()
+        outputs["preds"] = outputs["logits"]
         # utputs["preds"] = (prob >= 0.5).int().squeeze()
         return outputs
 

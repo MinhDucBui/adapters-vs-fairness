@@ -1,22 +1,24 @@
 # @package _global_
-
+defaults:
+  - override /datamodule: biasbios.yaml
+  - override /module: multiclass_classification.yaml
 
 module:
-    adapters: True
-    optimizer:
-        lr: 0.0001
     model:
-        num_labels: 1
+        num_labels: 28
         pretrained_model_name_or_path: distilbert-base-uncased
         
 datamodule:
     batch_size: 32
-    train_data_path: ${jigsaw}/train_subset.csv
-    test_data_path: ${jigsaw}/test_private_expanded.csv
     
 trainer:
     accelerator: gpu
     devices: 1
+    val_check_interval: 1.0
     max_epochs: 2
+    
+wandb:
+    project: test
+
 
 

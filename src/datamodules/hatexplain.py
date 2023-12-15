@@ -18,6 +18,8 @@ class HateXplainDataModule(BaseDataModule):
             self,
             dataset_path,
             post_id_division_path,
+            train_data_path=None,
+            test_data_path=None,
             *args,
             **kwargs,
     ):
@@ -29,8 +31,8 @@ class HateXplainDataModule(BaseDataModule):
         self.post_id_division_path = post_id_division_path
 
         self.group_mapping = {"race": ["African", "Arab", "Asian", "Caucasian", "Hispanic"],
-                              "religion": ["Islam", "Buddhism", "Jewish", "Hindu", "Christian"],
-                              "gender_and_sexual_orientation": ["Men", "Women"]}
+                        "religion": ["Islam", "Buddhism", "Jewish", "Hindu", "Christian"],
+                        "gender_and_sexual_orientation": ["Men", "Women", "Homosexual"]}
 
     @property
     def num_labels(self) -> int:
@@ -101,6 +103,8 @@ class HateXplainDataModule(BaseDataModule):
     def create_dataset(self, df, post_id_dict, subset="train"):
         dataset_subset = df[df['post_id'].isin(post_id_dict[subset])]
         dataset_subset = dataset_subset.drop("post_id", axis=1)
+        # Shuffle
+        dataset_subset = dataset_subset.sample(frac = 1, random_state=SEED)
         dataset_subset = Dataset.from_pandas(dataset_subset)
         dataset_subset = dataset_subset.map(self.tokenization)
         dataset_subset = dataset_subset.remove_columns(["text"])
@@ -152,9 +156,8 @@ def generate_target_information(x):
     community_dict = dict(Counter(all_targets))
 
     sample_targets = []
-    # Select only those communities which are present more than once.
     for key in community_dict:
-        if community_dict[key] > 1:
-            sample_targets.append(key)
+        #if community_dict[key] > 1:
+        sample_targets.append(key)
 
     return sample_targets

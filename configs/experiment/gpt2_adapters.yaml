@@ -1,11 +1,17 @@
 # @package _global_
+
 defaults:
   - override /module: classification_warmup.yaml
 
 module:
+    adapters: True
+    optimizer:
+        lr: 0.0001
     model:
+        _target_: transformers.GPT2ForSequenceClassification.from_pretrained
         num_labels: 1
-        pretrained_model_name_or_path: distilbert-base-uncased
+        pretrained_model_name_or_path: gpt2
+
         
 datamodule:
     batch_size: 32
@@ -15,3 +21,6 @@ datamodule:
 trainer:
     accelerator: gpu
     devices: 1
+    
+    
+

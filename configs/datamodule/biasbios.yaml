@@ -1,0 +1,13 @@
+_recursive_: False
+_target_: src.datamodules.biasbios.BiasBiosDataModule
+
+defaults:
+  - /collate_fn: padding
+  - /tokenizer: autotokenizer
+
+
+pin_memory: False
+dataset_path: ${biasbios}
+scrup_gender: False
+batch_size: 32
+num_workers: 0

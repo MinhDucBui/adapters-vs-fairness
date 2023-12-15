@@ -43,10 +43,9 @@ work_dir: ${hydra:runtime.cwd}
 # path to folder with data
 data_dir: /pfs/data5/home/ma/ma_ma/ma_mbui/clkd/data
 
-# Path to Data Folder
+# Path to CC100 Folder for MLM pretraining
 jigsaw: ${data_dir}/jigsaw
 hatexplain: ${data_dir}/hatexplain
-biasbios: ${data_dir}/biasbios
 
 # Path to parallel data Folder
 #parallel_data: ${data_dir}/parallel_data

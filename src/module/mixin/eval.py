@@ -337,6 +337,8 @@ class EvalMixin:
                     metric_key=metric,
                     input=metric_cfg["metric"],
                 )
+            
+
             if getattr(metric_cfg, "compute_on", False) == "epoch_end":
                 kwargs: dict = self._prepare_metric_input(
                     metric_cfg.kwargs, flattened_step_outputs, None
