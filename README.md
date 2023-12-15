@@ -65,6 +65,18 @@ python run.py experiment=bert_adapters
 </details>
 
 <details>
+<summary><b>Change to Bert+LoRA</b></summary>
+
+
+```bash
+python run.py experiment=bert_lora
+```
+
+  
+  
+</details>
+
+<details>
 <summary><b>Change to RoBERTa</b></summary>
 
 
@@ -85,6 +97,16 @@ python run.py experiment=roberta_adapters
 </details>
 
 <details>
+<summary><b>Change to RoBERTa+LoRA</b></summary>
+
+
+```bash
+python run.py experiment=roberta_lora
+```
+
+</details>
+
+<details>
 <summary><b>Change to GPT-2</b></summary>
 
 
@@ -100,6 +122,47 @@ python run.py experiment=gpt2
 
 ```bash
 python run.py experiment=gpt2_adapters
+```
+
+</details>
+
+<details>
+<summary><b>Change to GPT-2+LoRA</b></summary>
+
+
+```bash
+python run.py experiment=gpt2_lora
+```
+
+</details>
+
+
+<details>
+<summary><b>Change to RoBERTa_Large</b></summary>
+
+
+```bash
+python run.py experiment=roberta_large
+```
+
+</details>
+
+<details>
+<summary><b>Change to RoBERTa_Large+Adapters</b></summary>
+
+
+```bash
+python run.py experiment=roberta_large_adapters
+```
+
+</details>
+
+<details>
+<summary><b>Change to RoBERTa_Large+LoRA</b></summary>
+
+
+```bash
+python run.py experiment=roberta_large_lora
 ```
 
 </details>
